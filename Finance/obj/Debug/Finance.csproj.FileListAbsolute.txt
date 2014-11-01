@@ -1,0 +1,9 @@
+e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\bin\Debug\Finance.exe.config
+e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\bin\Debug\Finance.exe
+e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\bin\Debug\Finance.pdb
+e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\obj\Debug\Finance.csprojResolveAssemblyReference.cache
+e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\obj\Debug\Finance.Form1.resources
+e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\obj\Debug\Finance.Properties.Resources.resources
+e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\obj\Debug\Finance.csproj.GenerateResource.Cache
+e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\obj\Debug\Finance.exe
+e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\obj\Debug\Finance.pdb
