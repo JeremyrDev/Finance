@@ -12,20 +12,18 @@ using System.Xml.Linq;
 using System.Web;
 using System.Net;
 using System.Globalization;
+using System.IO;
 namespace Finance
 {
     public partial class Form1 : Form
     {
         string sy;
-        string buildString;
-        string information;
-        string temp;
         int counter = 0;
         int item = 0;
         int panelPosition = 0;
-        XmlReader reader;
 
         TextBox[] textbox;
+        Button[] eButton;
 
         Label[] name;
         Label[] symbol;
@@ -44,10 +42,12 @@ namespace Finance
             InitializeComponent();
         }
       
+        //on hovering over the panel, show a subtle X button all the way to the right in the middle of it, click it to delete the item
         private void Form1_Load(object sender, EventArgs e)
         {
             sy = "f";
             textbox = new TextBox[500];
+            eButton = new Button[500];
 
             name = new Label[500];
             symbol = new Label[500];
@@ -63,92 +63,92 @@ namespace Finance
         }
         public void showData()
         {
-            reader.Close();
-            reader.Dispose();
+
             if (sy == "")
             {
-                //label1.Text = "Enter a value to start";
+                this.Text = "Enter a value to start";
             }
             else
             {
-                information = "";
-                using (reader = XmlReader.Create("http://dev.markitondemand.com/Api/v2/Quote/xmlp?symbol=" + sy))
+                try
                 {
-                    while (reader.Read())
+                    this.Text = "Finance";
+                    using (WebClient Client = new WebClient())
                     {
-                        if (reader.IsStartElement())
-                        {
-                            switch (reader.Name.ToString())
-                            {
-                                case "Name":
-                                    temp = reader.ReadString();
-                                    information += temp + Environment.NewLine;
-                                    names[item] += temp;
-                                    break;
-                                case "Symbol":
-                                    temp = reader.ReadString();
-                                    information += temp + Environment.NewLine;
-                                    symbols[item] += temp;
-                                    break;
-                                case "LastPrice":
-                                    temp = reader.ReadString();
-                                    information += temp + Environment.NewLine;
-                                    prices[item] += temp;
-                                    break;
-                                case "High":
-                                    information += reader.ReadString() + Environment.NewLine;
-                                    break;
-                                case "Low":
-                                    information += reader.ReadString() + Environment.NewLine;
-                                    break;
-                                case "Change":
-                                    temp = reader.ReadString();
-                                    information += temp + Environment.NewLine;
-                                    changes[item] += temp + " : ";
-                                    break;
-                                case "ChangePercent":
-                                    temp = reader.ReadString();
-                                    information += temp + Environment.NewLine;
-                                    changes[item] += temp + "% ";
-                                    break;
-                                case "Timestamp":
-                                    information += reader.ReadString() + Environment.NewLine;
-                                    break;
-                                case "MarketCap":
-                                    information += reader.ReadString() + Environment.NewLine;
-                                    break;
-                                case "Volume":
-                                    information += reader.ReadString() + Environment.NewLine;
-                                    break;
-                                case "Open":
-                                    information += reader.ReadString() + Environment.NewLine;
-                                    break;
-                            }
-                        }
+                        Client.DownloadFile("http://dev.markitondemand.com/Api/v2/Quote/xmlp?symbol=" + sy, @"E:\Users\Jeremy-SSDOS\Desktop\" + sy + ".xml");
                     }
+
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(@"E:\Users\Jeremy-SSDOS\Desktop\" + sy + ".xml");
+
+                    XmlNodeList prop = doc.SelectNodes("/StockQuote");
+
+                    foreach (XmlNode n in prop)
+                    {
+                        names[item] = n.SelectSingleNode("Name").InnerText;
+                        symbols[item] = n.SelectSingleNode("Symbol").InnerText;
+                        prices[item] = n.SelectSingleNode("LastPrice").InnerText;
+                        changes[item] = n.SelectSingleNode("Change").InnerText + " : " + n.SelectSingleNode("ChangePercent").InnerText + "%";
+                    }
+                }
+                catch
+                {
+
                 }
 
                 addItem();
+                textBox1.Focus();
             }
+        }
+        void PanelClickHandler(object sender, EventArgs e)
+        {
+            //Button button = sender as Button;
+            Panel selectedPanel = sender as Panel;
+            selectedPanel.Parent.Focus();
+            selectedPanel.BackColor = Color.DarkGray;
+        }
+        void panelLostFocusHandler(object sender, EventArgs e)
+        {
+            Panel selectedPanel = sender as Panel;
+            selectedPanel.BackColor = Color.FromArgb(80, 80, 80);
+            eButton[int.Parse(selectedPanel.Name)].Visible = false;
+        }
+        void panelMouseHoverHandler(object sender, EventArgs e)
+        {
+            Panel selectedPanel = sender as Panel;
+            selectedPanel.BackColor = Color.FromArgb(100, 100, 100);
+            eButton[int.Parse(selectedPanel.Name)].Visible = true;
         }
         void addItem()
         {
             panel[item] = new Panel();
+            textbox[item] = new TextBox();
+            eButton[item] = new Button();
 
             name[item] = new Label();
             symbol[item] = new Label();
             price[item] = new Label();
             change[item] = new Label();
+
+            panel[item].Click += PanelClickHandler;
+            panel[item].LostFocus += panelLostFocusHandler;
+            panel[item].MouseHover += panelMouseHoverHandler;
             //panel[i].Click += PanelClickHandler;
             //panel[i].LostFocus += panelLostFocusHandler;
 
             panel[item].BackColor = Color.FromArgb(60, 60, 60);
             panel[item].BackgroundImage = new Bitmap(@"e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\bg.bmp");
             panel[item].Dock = DockStyle.Top;
-            panel[item].Name = "Panel" + item;
+            panel[item].Name = item.ToString();
+
+            eButton[item].Location = new Point(panel3.Width-60, 13);
+            eButton[item].Text = "X";
+            eButton[item].Width = 30;
+            eButton[item].FlatStyle = FlatStyle.Flat;
+
+            eButton[item].Visible = false;
 
             name[item].Location = new Point(15, 13);
-            name[item].Text = "test";
             name[item].Font = new Font("Arial", 10);
             name[item].AutoSize = true;
             name[item].ForeColor = Color.White;
@@ -156,7 +156,6 @@ namespace Finance
             name[item].Text = names[item];
 
             symbol[item].Location = new Point(205, 13);
-            symbol[item].Text = "test";
             symbol[item].Font = new Font("Arial", 10);
             symbol[item].AutoSize = true;
             symbol[item].ForeColor = Color.White;
@@ -164,7 +163,6 @@ namespace Finance
             symbol[item].Text = symbols[item];
 
             price[item].Location = new Point(305, 13);
-            price[item].Text = "test";
             price[item].Font = new Font("Arial", 10);
             price[item].AutoSize = true;
             price[item].ForeColor = Color.White;
@@ -172,22 +170,32 @@ namespace Finance
             price[item].Text = prices[item];
 
             change[item].Location = new Point(405, 13);
-            change[item].Text = "test";
             change[item].Font = new Font("Arial", 10);
             change[item].AutoSize = true;
             change[item].ForeColor = Color.White;
             change[item].BackColor = Color.FromArgb(80, 80, 80);
             change[item].Text = changes[item];
 
-            panel[item].Width = panel2.Width - 10;
+            textbox[item].Location = new Point(575, 13);
+            textbox[item].Width = 60;
+            textbox[item].Text = "Shares";
+            textbox[item].TextAlign = HorizontalAlignment.Center;
+            textbox[item].Font = new Font("Arial", 12);
+            textbox[item].BorderStyle = BorderStyle.None;
+            //textbox[i].BackColor = Color.FromArgb(203, 222, 231);
+            textbox[item].BackColor = Color.White;
+
+            panel[item].Width = panel3.Width - 10;
             panel[item].Height = 45;
 
             panel[item].Controls.Add(name[item]);
             panel[item].Controls.Add(symbol[item]);
             panel[item].Controls.Add(price[item]);
             panel[item].Controls.Add(change[item]);
+            panel[item].Controls.Add(eButton[item]);
+            panel[item].Controls.Add(textbox[item]);
 
-            panel2.Controls.Add(panel[item]);
+            panel3.Controls.Add(panel[item]);
             panelPosition += 45;
 
             textbox[item] = new TextBox();
@@ -196,7 +204,7 @@ namespace Finance
         }
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            buildString = "";
+            //buildString = "";
             listBox1.Items.Clear();
             listBox1.Height = 0;
             listBox1.Visible = true;
@@ -204,24 +212,26 @@ namespace Finance
 
             try
             {
-                using (reader = XmlReader.Create("http://dev.markitondemand.com/Api/v2/Lookup/xmlp?input=" + s + "&callback=myFunction"))
+                using (WebClient Client = new WebClient())
                 {
-                    while (reader.Read())
-                    {
+                    Client.DownloadFile("http://dev.markitondemand.com/Api/v2/Lookup/xmlp?input=" + s + "&callback=myFunction",@"E:\Users\Jeremy-SSDOS\Desktop\"+ s + ".xml");
+                }
 
-                        if (reader.IsStartElement())
-                        {
-                            switch (reader.Name.ToString())
-                            {
-                                case "Symbol":
-                                    buildString += reader.ReadString();
-                                    listBox1.Items.Add(buildString);
-                                    buildString = "";
-                                    listBox1.Height += 13;
-                                    break;
-                            }
-                        }
-                    }
+                XmlDocument doc = new XmlDocument();
+                doc.Load(@"E:\Users\Jeremy-SSDOS\Desktop\" + s + ".xml");
+                //label1.Text = doc.SelectNodes(;
+                //XmlNode node = doc.SelectSingleNode("LookUpResult");
+
+                XmlNodeList prop = doc.SelectNodes("LookupResultList/LookupResult");
+
+                foreach (XmlNode n in prop)
+                {
+                    //name[i].Text = "*" + node.SelectSingleNode("Name").InnerText;
+                    //label1.Text = n["Name"].InnerText;
+                    listBox1.Items.Add(n.SelectSingleNode("Symbol").InnerText);
+                    listBox1.Height += 13;
+                    //price[i].Text = node.SelectSingleNode("LastPrice").InnerText;
+                    //change[i].Text = node.SelectSingleNode("Change").InnerText + " : " + node.SelectSingleNode("ChangePercent").InnerText + "%";
                 }
             }
             catch
@@ -233,7 +243,7 @@ namespace Finance
         private void ListBox1_Click(object sender, EventArgs e)
         {
             sy = listBox1.SelectedItem.ToString();
-            textBox1.Text = sy;
+            textBox1.Text = "";
             listBox1.Visible = false;
             showData();
             item++;
@@ -255,76 +265,31 @@ namespace Finance
         }
         private void timer1_Tick(object sender, EventArgs e)
         {
-            
-
             counter++;
-
-            information = "";
             for (int i = 0; i < item; i++)
             {
-                names[i] = "";
-                symbols[i] = "";
+                //names[i] = "";
+                //symbols[i] = "";
                 changes[i] = "";
                 prices[i] = "";
-                using (reader = XmlReader.Create("http://dev.markitondemand.com/Api/v2/Quote/xmlp?symbol=" + sy))
+                using (WebClient Client = new WebClient())
                 {
-                    while (reader.Read())
-                    {
-                        if (reader.IsStartElement())
-                        {
-                            switch (reader.Name.ToString())
-                            {
-                                case "Name":
-                                    temp = reader.ReadString();
-                                    information += temp + Environment.NewLine;
-                                    names[i] += temp;
-                                    name[i].Text = counter + "  " + names[i];
-                                    break;
-                                case "Symbol":
-                                    temp = reader.ReadString();
-                                    information += temp + Environment.NewLine;
-                                    symbols[i] += temp;
-                                    symbol[i].Text = symbols[i];
-                                    break;
-                                case "LastPrice":
-                                    temp = reader.ReadString();
-                                    information += temp + Environment.NewLine;
-                                    prices[i] += temp;
-                                    price[i].Text = prices[i];
-                                    break;
-                                case "High":
-                                    information += reader.ReadString() + Environment.NewLine;
-                                    break;
-                                case "Low":
-                                    information += reader.ReadString() + Environment.NewLine;
-                                    break;
-                                case "Change":
-                                    temp = reader.ReadString();
-                                    information += temp + Environment.NewLine;
-                                    changes[i] += temp + " : ";
-                                    break;
-                                case "ChangePercent":
-                                    temp = reader.ReadString();
-                                    information += temp + Environment.NewLine;
-                                    changes[i] += temp + "% ";
-                                    change[i].Text = changes[i];
-                                    break;
-                                case "Timestamp":
-                                    information += reader.ReadString() + Environment.NewLine;
-                                    break;
-                                case "MarketCap":
-                                    information += reader.ReadString() + Environment.NewLine;
-                                    break;
-                                case "Volume":
-                                    information += reader.ReadString() + Environment.NewLine;
-                                    break;
-                                case "Open":
-                                    information += reader.ReadString() + Environment.NewLine;
-                                    break;
-                            }
-                        }
-                    }
+                    Client.DownloadFile("http://dev.markitondemand.com/Api/v2/Quote/xmlp?symbol=" + symbols[i], symbols[i]+".xml");
                 }
+
+                XmlDocument doc = new XmlDocument();
+                doc.Load(symbols[i]+".xml");
+
+                XmlNode node = doc.SelectSingleNode("StockQuote");
+
+                //XmlNodeList prop = node.SelectNodes("Items");
+
+                //foreach (XmlNode n in prop)
+                //{
+                name[i].Text = "*" + node.SelectSingleNode("Name").InnerText;
+                symbol[i].Text = node.SelectSingleNode("Symbol").InnerText;
+                price[i].Text = node.SelectSingleNode("LastPrice").InnerText;
+                change[i].Text = node.SelectSingleNode("Change").InnerText + " : " + node.SelectSingleNode("ChangePercent").InnerText+"%";
             }
         }
 
@@ -337,6 +302,34 @@ namespace Finance
                 else
                     timer1.Enabled = false;
             }
+        }
+
+        private void textBox1_KeyUp(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.Enter)
+            {
+                if (listBox1.Items.Count == 0 || listBox1.SelectedItem == null)
+                {
+                    sy = textBox1.Text;
+                    textBox1.Text = "";
+                    listBox1.Visible = false;
+                    showData();
+                    item++;
+                }
+                else
+                {
+                    sy = listBox1.SelectedItem.ToString();
+                    textBox1.Text = sy;
+                    listBox1.Visible = false;
+                    showData();
+                    item++;
+                }
+            }
+        }
+
+        private void panel3_Paint(object sender, PaintEventArgs e)
+        {
+
         }
     }
 }
