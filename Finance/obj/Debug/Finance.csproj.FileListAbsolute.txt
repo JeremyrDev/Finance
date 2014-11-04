@@ -7,3 +7,12 @@ e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\obj\
 e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\obj\Debug\Finance.csproj.GenerateResource.Cache
 e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\obj\Debug\Finance.exe
 e:\users\jeremy-ssdos\documents\visual studio 2013\Projects\Finance\Finance\obj\Debug\Finance.pdb
+C:\Users\Jeremy\Documents\GitHub\Finance\Finance\bin\Debug\Finance.exe.config
+C:\Users\Jeremy\Documents\GitHub\Finance\Finance\bin\Debug\Finance.exe
+C:\Users\Jeremy\Documents\GitHub\Finance\Finance\bin\Debug\Finance.pdb
+C:\Users\Jeremy\Documents\GitHub\Finance\Finance\obj\Debug\Finance.csprojResolveAssemblyReference.cache
+C:\Users\Jeremy\Documents\GitHub\Finance\Finance\obj\Debug\Finance.Form1.resources
+C:\Users\Jeremy\Documents\GitHub\Finance\Finance\obj\Debug\Finance.Properties.Resources.resources
+C:\Users\Jeremy\Documents\GitHub\Finance\Finance\obj\Debug\Finance.csproj.GenerateResource.Cache
+C:\Users\Jeremy\Documents\GitHub\Finance\Finance\obj\Debug\Finance.exe
+C:\Users\Jeremy\Documents\GitHub\Finance\Finance\obj\Debug\Finance.pdb
